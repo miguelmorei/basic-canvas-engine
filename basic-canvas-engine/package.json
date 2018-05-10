@@ -1,0 +1,35 @@
+{
+  "name": "vortex-engine",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Yo\" "
+  },
+  "author": "Miguel M",
+  "license": "ISC",
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-loader": "^7.1.2",
+    "babel-plugin-transform-object-rest-spread": "^6.26.0",
+    "babel-preset-env": "^1.6.1",
+    "babel-preset-flow": "^6.23.0",
+    "browser-sync": "^2.18.13",
+    "connect-history-api-fallback": "^1.4.0",
+    "es6-promise": "^4.2.4",
+    "express": "^4.16.3",
+    "flow-bin": "^0.68.0",
+    "gulp": "^3.9.1",
+    "gulp-concat": "^2.6.1",
+    "gulp-jsdoc3": "^2.0.0",
+    "gulp-sass": "^3.1.0",
+    "gulp-strip-debug": "^1.1.0",
+    "gulp-uglify": "^3.0.0",
+    "webpack-stream": "^4.0.0"
+  },
+  "dependencies": {
+    "axios": "^0.17.1",
+    "babel-core": "^6.26.0",
+    "babel-polyfill": "^6.26.0"
+  }
+}
