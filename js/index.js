@@ -60,7 +60,7 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 1);
+/******/ 	return __webpack_require__(__webpack_require__.s = 3);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -81,9 +81,13 @@ var _createClass = function () { function defineProperties(target, props) { for 
  * Game entity
  */
 
-var _Input = __webpack_require__(6);
+var _Input = __webpack_require__(1);
 
 var _Input2 = _interopRequireDefault(_Input);
+
+var _Sprite = __webpack_require__(2);
+
+var _Sprite2 = _interopRequireDefault(_Sprite);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -107,15 +111,23 @@ var VortexEntity = function () {
         this.sprite = props.sprite || null;
         this.color = props.color || null;
         this.inputs = [];
+
+        console.log(this.sprite);
+        window.sprite = this.sprite;
     }
 
     _createClass(VortexEntity, [{
         key: 'render',
         value: function render(CTX) {
 
-            if (typeof this.sprite == 'sprite') {
+            if (this.sprite instanceof _Sprite2.default) {
 
-                //render sprite
+                CTX.drawImage(this.sprite.image, this.x, this.y, this.sprite.width, this.sprite.height, this.x, this.y, this.sx, this.sy);
+
+                CTX.fillStyle = this.color;
+                CTX.fillRect(this.x, this.y, 5, 5);
+
+                // ctx.drawImage(image, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight);
 
             } else {
 
@@ -124,26 +136,11 @@ var VortexEntity = function () {
             }
         }
     }, {
-        key: 'addInput',
-        value: function addInput(input) {
-            var _this = this;
-
-            this.inputs.push(new _Input2.default(65, function (performing) {
-                if (performing) {
-                    _this.speed = 5;
-                }
-            }));
-        }
-    }, {
         key: 'update',
         value: function update() {
 
-            for (var i = 0; i < this.inputs.length; i++) {
-                this.inputs[i].performAction();
-            }
-
-            this.x += this.vx * this.speed;
-            this.vy = this.vy * this.speed;
+            this.x += this.vx;
+            this.y += this.vy;
         }
     }]);
 
@@ -156,8 +153,28 @@ exports.default = VortexEntity;
 /* 1 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__(2);
+"use strict";
 
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+/**
+ * Manage inputs
+ */
+
+var Input = function Input(event, input, callback) {
+  _classCallCheck(this, Input);
+
+  this.event = event;
+  this.input = input;
+  this.callback = callback;
+};
+
+exports.default = Input;
 
 /***/ }),
 /* 2 */
@@ -166,13 +183,73 @@ module.exports = __webpack_require__(2);
 "use strict";
 
 
-var _VortexEngine = __webpack_require__(3);
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+/**
+ * Sprite
+ */
+
+var Sprite = function () {
+    function Sprite(src, totalFrames) {
+        _classCallCheck(this, Sprite);
+
+        this.image = this.createImage(src);
+        this.currentFrame = 0;
+        this.totalFrames = totalFrames || 0;
+    }
+
+    _createClass(Sprite, [{
+        key: "createImage",
+        value: function createImage(src) {
+
+            var image = new Image();
+            image.src = src;
+            this.width = parseInt(image.width) / this.totalFrames;
+            this.height = image.height;
+            return image;
+        }
+    }]);
+
+    return Sprite;
+}();
+
+exports.default = Sprite;
+
+/***/ }),
+/* 3 */
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports = __webpack_require__(4);
+
+
+/***/ }),
+/* 4 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var _VortexEngine = __webpack_require__(5);
 
 var _VortexEngine2 = _interopRequireDefault(_VortexEngine);
 
 var _VortexEntity = __webpack_require__(0);
 
 var _VortexEntity2 = _interopRequireDefault(_VortexEntity);
+
+var _Input = __webpack_require__(1);
+
+var _Input2 = _interopRequireDefault(_Input);
+
+var _Sprite = __webpack_require__(2);
+
+var _Sprite2 = _interopRequireDefault(_Sprite);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -192,20 +269,23 @@ myGame.start();
 var myObject = new _VortexEntity2.default({
     x: 20,
     y: 20,
-    sx: 100,
-    sy: 100,
-    color: 'black'
+    sx: 90,
+    sy: 180,
+    color: 'black',
+    sprite: new _Sprite2.default('/img/spritesheet.png', 8)
 });
 
-myObject.addInput('a', function () {
+document.addEventListener('keydown', function (e) {
 
-    this.speed = 5;
+    if (e.key == 'd') {
+        myObject.vx = 5;
+    }
 });
 
 myGame.addEntity(myObject);
 
 /***/ }),
-/* 3 */
+/* 5 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -220,9 +300,13 @@ var _createClass = function () { function defineProperties(target, props) { for 
  * Vortex Engine Constructor
  */
 
-var _VortexEngineRenderer = __webpack_require__(4);
+var _VortexEngineRenderer = __webpack_require__(6);
 
 var _VortexEngineRenderer2 = _interopRequireDefault(_VortexEngineRenderer);
+
+var _VortexPhysics = __webpack_require__(8);
+
+var _VortexPhysics2 = _interopRequireDefault(_VortexPhysics);
 
 var _VortexEntity = __webpack_require__(0);
 
@@ -240,13 +324,15 @@ var VortexEngine = function () {
         this.entities = [];
         this.paused = true;
         this.renderer = new _VortexEngineRenderer2.default(options.render);
+        this.physics = new _VortexPhysics2.default();
     }
 
     _createClass(VortexEngine, [{
         key: 'start',
         value: function start() {
 
-            this.render();
+            this.paused = false;
+            this.loop();
         }
     }, {
         key: 'render',
@@ -255,12 +341,32 @@ var VortexEngine = function () {
             this.renderer.render();
         }
     }, {
+        key: 'update',
+        value: function update() {
+
+            this.physics.update();
+        }
+    }, {
+        key: 'loop',
+        value: function loop() {
+            var _this = this;
+
+            this.render();
+            this.update();
+
+            if (!this.paused) {
+                window.requestAnimationFrame(function () {
+                    _this.loop();
+                });
+            }
+        }
+    }, {
         key: 'addEntity',
         value: function addEntity(entity) {
 
             if (entity instanceof _VortexEntity2.default) {
-                this.entities.push(entity);
                 this.renderer.bindEntity(entity);
+                this.physics.bindEntity(entity);
             }
         }
     }]);
@@ -271,7 +377,7 @@ var VortexEngine = function () {
 exports.default = VortexEngine;
 
 /***/ }),
-/* 4 */
+/* 6 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -288,7 +394,7 @@ var _createClass = function () { function defineProperties(target, props) { for 
  */
 
 
-var _Canvas = __webpack_require__(5);
+var _Canvas = __webpack_require__(7);
 
 var _Canvas2 = _interopRequireDefault(_Canvas);
 
@@ -323,7 +429,6 @@ var VortexEngineRenderer = function () {
     }, {
         key: 'render',
         value: function render() {
-            var _this = this;
 
             this.CTX.clearRect(0, 0, this.WIDTH, this.HEIGHT);
             this.CTX.fillStyle = this.backgroundColor;
@@ -338,10 +443,6 @@ var VortexEngineRenderer = function () {
                     entities[i].render(this.CTX);
                 }
             }
-
-            window.requestAnimationFrame(function () {
-                _this.render();
-            });
         }
     }]);
 
@@ -351,7 +452,7 @@ var VortexEngineRenderer = function () {
 exports.default = VortexEngineRenderer;
 
 /***/ }),
-/* 5 */
+/* 7 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -381,7 +482,7 @@ function Canvas(canvas, w, h, container) {
 }
 
 /***/ }),
-/* 6 */
+/* 8 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -396,32 +497,45 @@ var _createClass = function () { function defineProperties(target, props) { for 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 /**
- * Manage inputs
+ * Physics engine
  */
 
-var Input = function () {
-    function Input(input, action) {
-        _classCallCheck(this, Input);
+var VortexPhysics = function () {
+    function VortexPhysics(options) {
+        _classCallCheck(this, VortexPhysics);
 
-        this.input = input;
-        this.action = action;
+        this.gravity = 0;
+        this.entities = [];
     }
 
-    _createClass(Input, [{
-        key: "performAction",
-        value: function performAction(action) {
+    _createClass(VortexPhysics, [{
+        key: "bindEntity",
+        value: function bindEntity(entity) {
+            this.entities.push(entity);
+        }
+    }, {
+        key: "update",
+        value: function update() {
 
-            if (typeof this.action == "function") {
+            var entities = this.entities;
 
-                this.action();
+            if (entities.length > 0) {
+
+                for (var i = 0; i < entities.length; i++) {
+
+                    entities[i].update();
+                }
             }
         }
+    }, {
+        key: "collide",
+        value: function collide(objs) {}
     }]);
 
-    return Input;
+    return VortexPhysics;
 }();
 
-exports.default = Input;
+exports.default = VortexPhysics;
 
 /***/ })
 /******/ ]);

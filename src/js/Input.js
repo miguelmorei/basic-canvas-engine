@@ -4,23 +4,14 @@
 
 export default class Input {
 
-    constructor(input, action) {
+    constructor(event, input, callback) {
 
+        this.event = event;
         this.input = input;
-        this.action = action;
-        
-        document.addEventListener('onkeydown', )
+        this.callback = callback;
+       
     }
 
-    performAction(action) {
 
-        if
-        if(typeof this.action == "function") {
-
-            this.action();
-
-        }
-
-    }
 
 }

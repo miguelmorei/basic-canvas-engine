@@ -4,6 +4,7 @@
  */
 
 import Input from './Input';
+import Sprite from './Sprite';
 
  export default class VortexEntity {
      
@@ -24,13 +25,34 @@ import Input from './Input';
         this.color = props.color || null;
         this.inputs = [];
 
+        console.log(this.sprite);
+        window.sprite = this.sprite;
+
     }
 
+ 
     render (CTX) {
 
-        if(typeof this.sprite == 'sprite') {
+        if(this.sprite instanceof Sprite) {
 
-            //render sprite
+            CTX.drawImage(
+                this.sprite.image,
+                this.x,
+                this.y,
+                this.sprite.width,
+                this.sprite.height,
+                this.x,                
+                this.y,
+                this.sx,
+                this.sy
+                
+            )
+
+            CTX.fillStyle = this.color;
+            CTX.fillRect(this.x, this.y, 5, 5);
+
+           // ctx.drawImage(image, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight);
+
 
         } else {
 
@@ -42,25 +64,11 @@ import Input from './Input';
 
     }
 
-    addInput(input) {
-
-        this.inputs.push(new Input(65, (performing)=>{
-            if(performing) {
-                this.speed = 5;
-            }
-        }))
-
-    }
-
+    
     update () {
 
-        for(let i = 0; i<this.inputs.length; i++) {
-            this.inputs[i].performAction();
-
-        }
-
-        this.x += (this.vx * this.speed);
-        this.vy = (this.vy * this.speed);
+        this.x += this.vx;
+        this.y += this.vy;
 
     }
 

@@ -2,7 +2,6 @@
  * Physics engine
  */
 
-
  export default class VortexPhysics {
 
     constructor(options) {
@@ -13,18 +12,20 @@
 
 
     bindEntity(entity) {
-        if(entity instanceof VortexEntity) {
-            this.entity.push(entity);
-        }
+        this.entities.push(entity);
+
     }
 
     update () {
 
-        if(this.entities.length > 0) {
+        let entities = this.entities;
 
-            for(let i = 0; i < this.entities.length; this.entities++) {
 
-                this.entities.update();
+        if(entities.length>0) {
+
+            for(let i = 0; i<entities.length; i++) {
+
+                entities[i].update();
 
             }
 

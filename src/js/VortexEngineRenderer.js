@@ -50,10 +50,6 @@ import VortexEntity from './VortexEntity';
 
         }
 
-        window.requestAnimationFrame(()=>{
-            this.render();
-        });
-
     }
 
  }

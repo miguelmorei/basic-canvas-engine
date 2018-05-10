@@ -5,6 +5,8 @@
  */
 import VortexEngine from './VortexEngine';
 import VortexEntity from './VortexEntity';
+import Input from './Input';
+import Sprite from './Sprite';
 
 
 const myGame = new VortexEngine({
@@ -17,18 +19,26 @@ const myGame = new VortexEngine({
 
 myGame.start();
 
+
+
 const myObject = new VortexEntity({
     x : 20,
     y : 20,
-    sx : 100,
-    sy : 100,
-    color : 'black'
-})
+    sx : 90,
+    sy : 180,
+    color : 'black',
+    sprite : new Sprite('/img/spritesheet.png', 8)
+});
 
-myObject.addInput('a', function(){
+document.addEventListener('keydown', e=>{
 
-    this.speed = 5;
+    if(e.key == 'd'){
+        myObject.vx = 5;
+    } 
 
-})
+});
+
+
+
 
 myGame.addEntity(myObject);
