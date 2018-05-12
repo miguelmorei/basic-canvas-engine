@@ -18,6 +18,8 @@ export default class VortexEngine {
         this.paused = true;
         this.renderer = new VortexEngineRenderer(options.render);
         this.physics = new VortexPhysics();
+        
+        this.input = [];
     }
 
     start () {
@@ -26,7 +28,16 @@ export default class VortexEngine {
         this.loop();
 
 
+        document.addEventListener('keydown', e=>{
+            this.input[e.key] = true;
+        })
+
+        document.addEventListener('keyup', e=>{
+            this.input[e.key] = false;
+        })
+
     }
+
 
     render () {
 

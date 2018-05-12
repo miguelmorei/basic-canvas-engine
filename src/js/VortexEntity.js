@@ -24,36 +24,26 @@ import Sprite from './Sprite';
         this.sprite = props.sprite || null;
         this.color = props.color || null;
         this.inputs = [];
-
+        this.step = props.step || null;
         console.log(this.sprite);
         window.sprite = this.sprite;
+
+
+  
 
     }
 
  
     render (CTX) {
 
+  
+
         if(this.sprite instanceof Sprite) {
-
-            CTX.drawImage(
-                this.sprite.image,
-                this.x,
-                this.y,
-                this.sprite.width,
-                this.sprite.height,
-                this.x,                
-                this.y,
-                this.sx,
-                this.sy
-                
-            )
-
-            CTX.fillStyle = this.color;
-            CTX.fillRect(this.x, this.y, 5, 5);
-
-           // ctx.drawImage(image, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight);
-
-
+            
+            CTX.fillStyle = "yellow";
+            CTX.fillRect(this.x, this.y, this.sx, this.sy);
+            this.sprite.render(CTX, this);
+            
         } else {
 
             CTX.fillStyle = this.color;
@@ -64,11 +54,20 @@ import Sprite from './Sprite';
 
     }
 
+
+
     
     update () {
 
         this.x += this.vx;
         this.y += this.vy;
+
+
+        if(typeof this.step == "function"){
+
+            this.step(this);
+
+        }
 
     }
 

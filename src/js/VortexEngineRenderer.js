@@ -16,7 +16,12 @@ import VortexEntity from './VortexEntity';
         this.CTX = this.CANVAS.getContext('2d');
         this.WIDTH = this.CANVAS.width;
         this.HEIGHT =this.CANVAS.height;
+        this.FPS = options.fps || 60;
+        this.THEN = Date.now();
+        this.INTERVAL = 1000/this.FPS;
+        this.DELTA = 0;
         this.entities = [];
+     
         this.backgroundColor = options.backgroundColor || '#f0f0f0';
 
 
@@ -34,21 +39,31 @@ import VortexEntity from './VortexEntity';
 
     render () {
 
-        this.CTX.clearRect(0, 0, this.WIDTH, this.HEIGHT);
-        this.CTX.fillStyle = this.backgroundColor;
-        this.CTX.fillRect(0, 0, this.WIDTH, this.HEIGHT);
+        this.NOW = Date.now();
+        this.DELTA = this.NOW - this.THEN;
 
-        let entities = this.entities;
+        if(this.DELTA > this.INTERVAL) {
 
-        if(entities.length>0) {
+            this.CTX.fillStyle = this.backgroundColor;
+            this.CTX.fillRect(0, 0, this.WIDTH, this.HEIGHT);
 
-            for(let i = 0; i<entities.length; i++) {
+            let entities = this.entities;
 
-                entities[i].render(this.CTX);
+            if(entities.length>0) {
+
+                for(let i = 0; i<entities.length; i++) {
+
+                    entities[i].render(this.CTX);
+
+                }
 
             }
 
+            this.THEN = this.NOW - (this.DELTA % this.INTERVAL);
+
         }
+
+        
 
     }
 

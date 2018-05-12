@@ -111,7 +111,7 @@ var VortexEntity = function () {
         this.sprite = props.sprite || null;
         this.color = props.color || null;
         this.inputs = [];
-
+        this.step = props.step || null;
         console.log(this.sprite);
         window.sprite = this.sprite;
     }
@@ -122,13 +122,9 @@ var VortexEntity = function () {
 
             if (this.sprite instanceof _Sprite2.default) {
 
-                CTX.drawImage(this.sprite.image, this.x, this.y, this.sprite.width, this.sprite.height, this.x, this.y, this.sx, this.sy);
-
-                CTX.fillStyle = this.color;
-                CTX.fillRect(this.x, this.y, 5, 5);
-
-                // ctx.drawImage(image, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight);
-
+                CTX.fillStyle = "yellow";
+                CTX.fillRect(this.x, this.y, this.sx, this.sy);
+                this.sprite.render(CTX, this);
             } else {
 
                 CTX.fillStyle = this.color;
@@ -141,6 +137,11 @@ var VortexEntity = function () {
 
             this.x += this.vx;
             this.y += this.vy;
+
+            if (typeof this.step == "function") {
+
+                this.step(this);
+            }
         }
     }]);
 
@@ -196,12 +197,14 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
  */
 
 var Sprite = function () {
-    function Sprite(src, totalFrames) {
+    function Sprite(src, totalFrames, ticks) {
         _classCallCheck(this, Sprite);
 
+        this.totalFrames = totalFrames || 0;
         this.image = this.createImage(src);
         this.currentFrame = 0;
-        this.totalFrames = totalFrames || 0;
+        this.tick = 0;
+        this.ticksPerFrame = ticks || 1;
     }
 
     _createClass(Sprite, [{
@@ -213,6 +216,24 @@ var Sprite = function () {
             this.width = parseInt(image.width) / this.totalFrames;
             this.height = image.height;
             return image;
+        }
+    }, {
+        key: "render",
+        value: function render(CTX, obj) {
+
+            this.tick += 1;
+
+            if (this.tick > this.ticksPerFrame) {
+
+                this.tick = 0;
+                this.currentFrame++;
+
+                if (this.currentFrame >= this.totalFrames) {
+                    this.currentFrame = 0;
+                }
+            }
+
+            CTX.drawImage(this.image, this.currentFrame * this.width, obj.y, this.width, this.height, obj.x, obj.y, obj.sx, obj.sy);
         }
     }]);
 
@@ -266,22 +287,33 @@ var myGame = new _VortexEngine2.default({
 
 myGame.start();
 
+var walkRight = new _Sprite2.default('/img/spritesheet.png', 8, 6);
+var walkLeft = new _Sprite2.default('/img/spritesheet2.png', 8, 6);
+var idle = new _Sprite2.default('/img/idle.png', 1, 30);
 var myObject = new _VortexEntity2.default({
     x: 20,
-    y: 20,
+    y: 100,
     sx: 90,
     sy: 180,
     color: 'black',
-    sprite: new _Sprite2.default('/img/spritesheet.png', 8)
+    sprite: walkLeft
 });
 
-document.addEventListener('keydown', function (e) {
+console.log(myObject);
 
-    if (e.key == 'd') {
-        myObject.vx = 5;
+myObject.step = function () {
+    this.vx = 0;
+    this.sprite = walkLeft;
+    if (myGame.input.d) {
+        this.vx = 5;
+        this.sprite = walkRight;
     }
-});
 
+    if (myGame.input.a) {
+        this.vx = -5;
+        this.sprite = walkLeft;
+    }
+};
 myGame.addEntity(myObject);
 
 /***/ }),
@@ -325,14 +357,25 @@ var VortexEngine = function () {
         this.paused = true;
         this.renderer = new _VortexEngineRenderer2.default(options.render);
         this.physics = new _VortexPhysics2.default();
+
+        this.input = [];
     }
 
     _createClass(VortexEngine, [{
         key: 'start',
         value: function start() {
+            var _this = this;
 
             this.paused = false;
             this.loop();
+
+            document.addEventListener('keydown', function (e) {
+                _this.input[e.key] = true;
+            });
+
+            document.addEventListener('keyup', function (e) {
+                _this.input[e.key] = false;
+            });
         }
     }, {
         key: 'render',
@@ -349,14 +392,14 @@ var VortexEngine = function () {
     }, {
         key: 'loop',
         value: function loop() {
-            var _this = this;
+            var _this2 = this;
 
             this.render();
             this.update();
 
             if (!this.paused) {
                 window.requestAnimationFrame(function () {
-                    _this.loop();
+                    _this2.loop();
                 });
             }
         }
@@ -414,7 +457,12 @@ var VortexEngineRenderer = function () {
         this.CTX = this.CANVAS.getContext('2d');
         this.WIDTH = this.CANVAS.width;
         this.HEIGHT = this.CANVAS.height;
+        this.FPS = options.fps || 60;
+        this.THEN = Date.now();
+        this.INTERVAL = 1000 / this.FPS;
+        this.DELTA = 0;
         this.entities = [];
+
         this.backgroundColor = options.backgroundColor || '#f0f0f0';
     }
 
@@ -430,18 +478,25 @@ var VortexEngineRenderer = function () {
         key: 'render',
         value: function render() {
 
-            this.CTX.clearRect(0, 0, this.WIDTH, this.HEIGHT);
-            this.CTX.fillStyle = this.backgroundColor;
-            this.CTX.fillRect(0, 0, this.WIDTH, this.HEIGHT);
+            this.NOW = Date.now();
+            this.DELTA = this.NOW - this.THEN;
 
-            var entities = this.entities;
+            if (this.DELTA > this.INTERVAL) {
 
-            if (entities.length > 0) {
+                this.CTX.fillStyle = this.backgroundColor;
+                this.CTX.fillRect(0, 0, this.WIDTH, this.HEIGHT);
 
-                for (var i = 0; i < entities.length; i++) {
+                var entities = this.entities;
 
-                    entities[i].render(this.CTX);
+                if (entities.length > 0) {
+
+                    for (var i = 0; i < entities.length; i++) {
+
+                        entities[i].render(this.CTX);
+                    }
                 }
+
+                this.THEN = this.NOW - this.DELTA % this.INTERVAL;
             }
         }
     }]);
@@ -519,11 +574,29 @@ var VortexPhysics = function () {
 
             var entities = this.entities;
 
+            this.applyGlobalForces();
+
             if (entities.length > 0) {
 
                 for (var i = 0; i < entities.length; i++) {
 
                     entities[i].update();
+                }
+            }
+        }
+    }, {
+        key: "applyGlobalForces",
+        value: function applyGlobalForces() {
+            var entities = this.entities;
+
+            if (this.gravity != 0) {
+
+                if (entities.length > 0) {
+
+                    for (var i = 0; i < entities.length; i++) {
+
+                        entities[i].vy = this.gravity;
+                    }
                 }
             }
         }

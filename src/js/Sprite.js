@@ -6,10 +6,12 @@
 
 export default class Sprite {
     
-    constructor(src, totalFrames) {
+    constructor(src, totalFrames, ticks) {
+        this.totalFrames = totalFrames || 0;
         this.image = this.createImage(src);
         this.currentFrame = 0;
-        this.totalFrames = totalFrames || 0;
+        this.tick = 0;
+        this.ticksPerFrame = ticks || 1;
     }
 
 
@@ -20,6 +22,35 @@ export default class Sprite {
         this.width = parseInt(image.width) / this.totalFrames;
         this.height = image.height;
         return image;
+        
+    }
+
+    render(CTX, obj) {
+        
+        this.tick +=1;
+
+        if(this.tick > this.ticksPerFrame ) {
+
+            this.tick = 0;
+            this.currentFrame++;
+
+            if(this.currentFrame >= this.totalFrames) {
+                this.currentFrame = 0 ;
+            }
+
+        }
+        
+        CTX.drawImage(
+            this.image,
+            (this.currentFrame * (this.width)),
+            obj.y,
+            this.width,
+            this.height,
+            obj.x,                
+            obj.y,
+            obj.sx,
+            obj.sy
+        )
         
     }
 
