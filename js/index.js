@@ -101,19 +101,21 @@ var VortexEntity = function () {
             props = {};
         }
 
+        this.id = parseInt(Math.random() * 1000000) + new Array('a', 'b', 'c', 'd')[parseInt(Math.random() * 4)];
         this.x = props.x || 0;
         this.y = props.y || 0;
         this.vx = props.vx || 0;
         this.vy = props.vy || 0;
         this.speed = props.speed || 0;
-        this.sx = props.sx || 0;
-        this.sy = props.sy || 0;
+        this.width = props.width || 0;
+        this.height = props.height || 0;
         this.sprite = props.sprite || null;
         this.color = props.color || null;
         this.inputs = [];
         this.step = props.step || null;
-        console.log(this.sprite);
-        window.sprite = this.sprite;
+        this.solid = props.solid || false;
+        this.colliding = false;
+        this.weight = props.weight || false;
     }
 
     _createClass(VortexEntity, [{
@@ -123,12 +125,12 @@ var VortexEntity = function () {
             if (this.sprite instanceof _Sprite2.default) {
 
                 CTX.fillStyle = "yellow";
-                CTX.fillRect(this.x, this.y, this.sx, this.sy);
+                CTX.fillRect(this.x, this.y, this.width, this.height);
                 this.sprite.render(CTX, this);
             } else {
 
                 CTX.fillStyle = this.color;
-                CTX.fillRect(this.x, this.y, this.sx, this.sy);
+                CTX.fillRect(this.x, this.y, this.width, this.height);
             }
         }
     }, {
@@ -142,6 +144,8 @@ var VortexEntity = function () {
 
                 this.step(this);
             }
+
+            console.log(this.vy);
         }
     }]);
 
@@ -233,7 +237,7 @@ var Sprite = function () {
                 }
             }
 
-            CTX.drawImage(this.image, this.currentFrame * this.width, obj.y, this.width, this.height, obj.x, obj.y, obj.sx, obj.sy);
+            CTX.drawImage(this.image, this.currentFrame * this.width, 0, this.width, this.height, obj.x, obj.y, obj.width, obj.height);
         }
     }]);
 
@@ -280,30 +284,33 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 var myGame = new _VortexEngine2.default({
     name: 'My test game',
     render: {
-        width: 600,
-        height: 400
+        width: 800,
+        height: 600
     }
 });
 
 myGame.start();
 
-var walkRight = new _Sprite2.default('/img/spritesheet.png', 8, 6);
-var walkLeft = new _Sprite2.default('/img/spritesheet2.png', 8, 6);
-var idle = new _Sprite2.default('/img/idle.png', 1, 30);
+var walkRight = new _Sprite2.default('/img/walk-right.png', 3, 6);
+var walkLeft = new _Sprite2.default('/img/walk-left.png', 3, 6);
+var idle = new _Sprite2.default('/img/idle.png', 4, 8);
+var attackSprite = new _Sprite2.default('/img/walk-left.png', 3, 6);
 var myObject = new _VortexEntity2.default({
-    x: 20,
+    x: 400,
     y: 100,
-    sx: 90,
-    sy: 180,
+    width: 60,
+    height: 100,
     color: 'black',
-    sprite: walkLeft
+    sprite: walkLeft,
+    solid: true,
+    weight: 1
 });
 
 console.log(myObject);
 
 myObject.step = function () {
     this.vx = 0;
-    this.sprite = walkLeft;
+    this.sprite = idle;
     if (myGame.input.d) {
         this.vx = 5;
         this.sprite = walkRight;
@@ -313,7 +320,43 @@ myObject.step = function () {
         this.vx = -5;
         this.sprite = walkLeft;
     }
+
+    if (myGame.input.e) {
+        this.sprite = attackSprite;
+    }
 };
+
+var wall = new _VortexEntity2.default({
+    x: 200,
+    y: 100,
+    width: 100,
+    height: 100,
+    color: 'red',
+    solid: true
+});
+
+var wall2 = new _VortexEntity2.default({
+    x: 500,
+    y: 380,
+    width: 100,
+    height: 100,
+    color: 'red',
+    solid: true,
+    weight: 0.01
+});
+
+var ground = new _VortexEntity2.default({
+    x: 0,
+    y: 500,
+    width: 800,
+    height: 40,
+    color: 'blue',
+    solid: true,
+    weight: 0
+});
+myGame.addEntity(ground);
+//myGame.addEntity(wall);
+//myGame.addEntity(wall2);
 myGame.addEntity(myObject);
 
 /***/ }),
@@ -559,7 +602,7 @@ var VortexPhysics = function () {
     function VortexPhysics(options) {
         _classCallCheck(this, VortexPhysics);
 
-        this.gravity = 0;
+        this.gravity = 8;
         this.entities = [];
     }
 
@@ -574,11 +617,14 @@ var VortexPhysics = function () {
 
             var entities = this.entities;
 
-            this.applyGlobalForces();
-
             if (entities.length > 0) {
 
                 for (var i = 0; i < entities.length; i++) {
+                    this.applyGlobalForces(entities[i]);
+
+                    if (entities[i].solid) {
+                        this.collide(entities[i]);
+                    }
 
                     entities[i].update();
                 }
@@ -586,23 +632,32 @@ var VortexPhysics = function () {
         }
     }, {
         key: "applyGlobalForces",
-        value: function applyGlobalForces() {
-            var entities = this.entities;
+        value: function applyGlobalForces(entity) {
 
             if (this.gravity != 0) {
 
-                if (entities.length > 0) {
-
-                    for (var i = 0; i < entities.length; i++) {
-
-                        entities[i].vy = this.gravity;
-                    }
-                }
+                entity.vy = this.gravity * entity.weight;
             }
         }
     }, {
         key: "collide",
-        value: function collide(objs) {}
+        value: function collide(a) {
+
+            var entities = this.entities;
+
+            for (var i = 0; i < entities.length; i++) {
+
+                if (entities[i].id != a.id) {
+                    var b = entities[i];
+
+                    //todo
+                    if (a.y + a.height + a.vy >= b.y && a.y + a.height + a.vy <= b.y + b.height) {
+
+                        a.vy = 0;
+                    }
+                }
+            }
+        }
     }]);
 
     return VortexPhysics;

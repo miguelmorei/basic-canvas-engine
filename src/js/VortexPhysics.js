@@ -6,7 +6,7 @@
 
     constructor(options) {
 
-        this.gravity =0;
+        this.gravity = 8;
         this.entities = [];
     }
 
@@ -20,13 +20,21 @@
 
         let entities = this.entities;
 
-        this.applyGlobalForces();
+
 
         if(entities.length>0) {
 
             for(let i = 0; i<entities.length; i++) {
+                this.applyGlobalForces(entities[i]);
+                
+               
 
+                if(entities[i].solid) {
+                    this.collide(entities[i]);
+                }
+               
                 entities[i].update();
+
 
             }
 
@@ -34,29 +42,36 @@
 
     }
 
-
-    applyGlobalForces () {
-        let entities = this.entities;
+    applyGlobalForces (entity) {
 
         if(this.gravity != 0) {
 
-            if(entities.length>0) {
-
-                for(let i = 0; i<entities.length; i++) {
+             entity.vy = this.gravity * entity.weight;
     
-                    entities[i].vy = this.gravity;
-    
-                }
-    
-            }
-
+         
         }
 
     }
 
-    collide(objs) {
+    collide(a) {
 
+        let entities = this.entities;
 
+        for(let i = 0; i<entities.length; i++) {
+
+            if(entities[i].id != a.id) {
+                let b = entities[i];
+                
+
+                //todo
+                if((a.y + a.height + a.vy >= b.y && a.y + a.height + a.vy <= b.y + b.height)) {
+
+                    a.vy = 0;
+
+                }
+            }
+
+        }
 
     }
  }

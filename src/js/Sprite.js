@@ -43,13 +43,13 @@ export default class Sprite {
         CTX.drawImage(
             this.image,
             (this.currentFrame * (this.width)),
-            obj.y,
+            0,
             this.width,
             this.height,
             obj.x,                
             obj.y,
-            obj.sx,
-            obj.sy
+            obj.width,
+            obj.height
         )
         
     }
