@@ -60,7 +60,7 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 3);
+/******/ 	return __webpack_require__(__webpack_require__.s = 2);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -78,14 +78,11 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 /**
- * Game entity
+ * Main Game entity
+ * @namespace VortexEntity
  */
 
-var _Input = __webpack_require__(1);
-
-var _Input2 = _interopRequireDefault(_Input);
-
-var _Sprite = __webpack_require__(2);
+var _Sprite = __webpack_require__(1);
 
 var _Sprite2 = _interopRequireDefault(_Sprite);
 
@@ -118,6 +115,12 @@ var VortexEntity = function () {
         this.weight = props.weight || false;
     }
 
+    /**
+     * Main render method, takes a canvas context as argument
+     * @param {*} CTX 
+     */
+
+
     _createClass(VortexEntity, [{
         key: 'render',
         value: function render(CTX) {
@@ -129,10 +132,16 @@ var VortexEntity = function () {
                 this.sprite.render(CTX, this);
             } else {
 
+                //todo
                 CTX.fillStyle = this.color;
                 CTX.fillRect(this.x, this.y, this.width, this.height);
             }
         }
+
+        /**
+         * Main update method
+         */
+
     }, {
         key: 'update',
         value: function update() {
@@ -144,8 +153,6 @@ var VortexEntity = function () {
 
                 this.step(this);
             }
-
-            console.log(this.vy);
         }
     }]);
 
@@ -162,33 +169,6 @@ exports.default = VortexEntity;
 
 
 Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-/**
- * Manage inputs
- */
-
-var Input = function Input(event, input, callback) {
-  _classCallCheck(this, Input);
-
-  this.event = event;
-  this.input = input;
-  this.callback = callback;
-};
-
-exports.default = Input;
-
-/***/ }),
-/* 2 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
@@ -198,6 +178,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 /**
  * Sprite
+ * @namespace Sprite
  */
 
 var Sprite = function () {
@@ -211,6 +192,12 @@ var Sprite = function () {
         this.ticksPerFrame = ticks || 1;
     }
 
+    /**
+     * Create an image element
+     * @param {string} src 
+     */
+
+
     _createClass(Sprite, [{
         key: "createImage",
         value: function createImage(src) {
@@ -221,6 +208,13 @@ var Sprite = function () {
             this.height = image.height;
             return image;
         }
+
+        /**
+         * Render sprite on provided canvas and loop through frames
+         * @param {*} CTX 
+         * @param {*} obj 
+         */
+
     }, {
         key: "render",
         value: function render(CTX, obj) {
@@ -247,20 +241,20 @@ var Sprite = function () {
 exports.default = Sprite;
 
 /***/ }),
-/* 3 */
+/* 2 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__(4);
+module.exports = __webpack_require__(3);
 
 
 /***/ }),
-/* 4 */
+/* 3 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-var _VortexEngine = __webpack_require__(5);
+var _VortexEngine = __webpack_require__(4);
 
 var _VortexEngine2 = _interopRequireDefault(_VortexEngine);
 
@@ -268,19 +262,12 @@ var _VortexEntity = __webpack_require__(0);
 
 var _VortexEntity2 = _interopRequireDefault(_VortexEntity);
 
-var _Input = __webpack_require__(1);
-
-var _Input2 = _interopRequireDefault(_Input);
-
-var _Sprite = __webpack_require__(2);
+var _Sprite = __webpack_require__(1);
 
 var _Sprite2 = _interopRequireDefault(_Sprite);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-/**
- * Create a game
- */
 var myGame = new _VortexEngine2.default({
     name: 'My test game',
     render: {
@@ -288,6 +275,11 @@ var myGame = new _VortexEngine2.default({
         height: 600
     }
 });
+
+/**
+ * Create a game
+ */
+
 
 myGame.start();
 
@@ -303,13 +295,14 @@ var myObject = new _VortexEntity2.default({
     color: 'black',
     sprite: walkLeft,
     solid: true,
-    weight: 1
+    weight: 0
 });
 
 console.log(myObject);
 
 myObject.step = function () {
     this.vx = 0;
+    this.vy = 0;
     this.sprite = idle;
     if (myGame.input.d) {
         this.vx = 5;
@@ -321,8 +314,12 @@ myObject.step = function () {
         this.sprite = walkLeft;
     }
 
-    if (myGame.input.e) {
-        this.sprite = attackSprite;
+    if (myGame.input.w) {
+        this.vy = -5;
+    }
+
+    if (myGame.input.s) {
+        this.vy = 5;
     }
 };
 
@@ -355,12 +352,12 @@ var ground = new _VortexEntity2.default({
     weight: 0
 });
 myGame.addEntity(ground);
-//myGame.addEntity(wall);
-//myGame.addEntity(wall2);
+myGame.addEntity(wall);
+myGame.addEntity(wall2);
 myGame.addEntity(myObject);
 
 /***/ }),
-/* 5 */
+/* 4 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -373,13 +370,14 @@ Object.defineProperty(exports, "__esModule", {
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 /**
  * Vortex Engine Constructor
+ * @namespace VortexEngine
  */
 
-var _VortexEngineRenderer = __webpack_require__(6);
+var _VortexEngineRenderer = __webpack_require__(5);
 
 var _VortexEngineRenderer2 = _interopRequireDefault(_VortexEngineRenderer);
 
-var _VortexPhysics = __webpack_require__(8);
+var _VortexPhysics = __webpack_require__(7);
 
 var _VortexPhysics2 = _interopRequireDefault(_VortexPhysics);
 
@@ -404,9 +402,15 @@ var VortexEngine = function () {
         this.input = [];
     }
 
+    /**
+     * Start the game loop
+     * @param {function} callback 
+     */
+
+
     _createClass(VortexEngine, [{
         key: 'start',
-        value: function start() {
+        value: function start(callback) {
             var _this = this;
 
             this.paused = false;
@@ -419,19 +423,38 @@ var VortexEngine = function () {
             document.addEventListener('keyup', function (e) {
                 _this.input[e.key] = false;
             });
+
+            if (typeof callback == "function") {
+                callback();
+            }
         }
+
+        /**
+         * Main render method
+         */
+
     }, {
         key: 'render',
         value: function render() {
 
             this.renderer.render();
         }
+
+        /**
+         * Update physics engine at every frame
+         */
+
     }, {
         key: 'update',
         value: function update() {
 
             this.physics.update();
         }
+
+        /**
+         * Main game loop
+         */
+
     }, {
         key: 'loop',
         value: function loop() {
@@ -446,6 +469,12 @@ var VortexEngine = function () {
                 });
             }
         }
+
+        /**
+         * Add entity to game instance
+         * @param {VortexEntity} entity 
+         */
+
     }, {
         key: 'addEntity',
         value: function addEntity(entity) {
@@ -463,7 +492,7 @@ var VortexEngine = function () {
 exports.default = VortexEngine;
 
 /***/ }),
-/* 6 */
+/* 5 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -477,10 +506,11 @@ var _createClass = function () { function defineProperties(target, props) { for 
 
 /**
  * Vortex Engine Renderer
+ * @namespace VortexEngineRenderer
  */
 
 
-var _Canvas = __webpack_require__(7);
+var _Canvas = __webpack_require__(6);
 
 var _Canvas2 = _interopRequireDefault(_Canvas);
 
@@ -509,6 +539,12 @@ var VortexEngineRenderer = function () {
         this.backgroundColor = options.backgroundColor || '#f0f0f0';
     }
 
+    /**
+     * Attach entity to be rendered
+     * @param {VortexEntity} entity 
+     */
+
+
     _createClass(VortexEngineRenderer, [{
         key: 'bindEntity',
         value: function bindEntity(entity) {
@@ -517,6 +553,11 @@ var VortexEngineRenderer = function () {
                 this.entities.push(entity);
             }
         }
+
+        /**
+         * Main render method
+         */
+
     }, {
         key: 'render',
         value: function render() {
@@ -550,7 +591,7 @@ var VortexEngineRenderer = function () {
 exports.default = VortexEngineRenderer;
 
 /***/ }),
-/* 7 */
+/* 6 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -580,7 +621,7 @@ function Canvas(canvas, w, h, container) {
 }
 
 /***/ }),
-/* 8 */
+/* 7 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -596,21 +637,33 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 /**
  * Physics engine
+ * @namespace VortexPhysics
+ * 
  */
-
 var VortexPhysics = function () {
     function VortexPhysics(options) {
         _classCallCheck(this, VortexPhysics);
 
-        this.gravity = 8;
+        this.gravity = 0;
         this.entities = [];
     }
+
+    /**
+     * Bind a game entity/object to the physics engine
+     * @param {VortexEntity} entity 
+     */
+
 
     _createClass(VortexPhysics, [{
         key: "bindEntity",
         value: function bindEntity(entity) {
             this.entities.push(entity);
         }
+
+        /**
+         * Apply relevant physics equations on this loop
+         */
+
     }, {
         key: "update",
         value: function update() {
@@ -620,16 +673,23 @@ var VortexPhysics = function () {
             if (entities.length > 0) {
 
                 for (var i = 0; i < entities.length; i++) {
-                    this.applyGlobalForces(entities[i]);
+
+                    entities[i].update();
 
                     if (entities[i].solid) {
                         this.collide(entities[i]);
                     }
 
-                    entities[i].update();
+                    this.applyGlobalForces(entities[i]);
                 }
             }
         }
+
+        /**
+         * Apply global forces (eg:gravity) to a specific instance
+         * @param {VortexEntity} entity 
+         */
+
     }, {
         key: "applyGlobalForces",
         value: function applyGlobalForces(entity) {
@@ -639,6 +699,12 @@ var VortexPhysics = function () {
                 entity.vy = this.gravity * entity.weight;
             }
         }
+
+        /**
+         * Rectangular Object collision detection
+         * @param {VortexEntity} a 
+         */
+
     }, {
         key: "collide",
         value: function collide(a) {
@@ -650,10 +716,12 @@ var VortexPhysics = function () {
                 if (entities[i].id != a.id) {
                     var b = entities[i];
 
-                    //todo
-                    if (a.y + a.height + a.vy >= b.y && a.y + a.height + a.vy <= b.y + b.height) {
+                    if ((a.x + a.vx >= b.x && a.x + a.vx <= b.x + b.width || a.x + a.width + a.vx >= b.x && a.x + a.width + a.vx <= b.x + b.width) && (a.y + a.vy >= b.y && a.y + a.vy <= b.y + b.height || a.y + a.height + a.vy >= b.y && a.y + a.height + a.vy <= b.y + b.height)) {
 
-                        a.vy = 0;
+                        a.colliding = true;
+                    } else {
+
+                        b.colliding = false;
                     }
                 }
             }

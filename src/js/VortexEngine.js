@@ -1,6 +1,7 @@
 
 /**
  * Vortex Engine Constructor
+ * @namespace VortexEngine
  */
 
 
@@ -22,7 +23,12 @@ export default class VortexEngine {
         this.input = [];
     }
 
-    start () {
+    
+    /**
+     * Start the game loop
+     * @param {function} callback 
+     */
+    start (callback) {
 
         this.paused = false;
         this.loop();
@@ -36,21 +42,34 @@ export default class VortexEngine {
             this.input[e.key] = false;
         })
 
+
+        if(typeof callback == "function") {
+            callback();
+        }
     }
 
 
+    /**
+     * Main render method
+     */
     render () {
 
         this.renderer.render();
 
     }
 
+    /**
+     * Update physics engine at every frame
+     */
     update () {
 
         this.physics.update();
 
     }
 
+    /**
+     * Main game loop
+     */
     loop () {
 
         this.render();
@@ -64,6 +83,11 @@ export default class VortexEngine {
 
     }
 
+
+    /**
+     * Add entity to game instance
+     * @param {VortexEntity} entity 
+     */
     addEntity(entity) {
 
         if(entity instanceof VortexEntity) {

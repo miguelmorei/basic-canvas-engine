@@ -1,9 +1,9 @@
 
 /**
- * Game entity
+ * Main Game entity
+ * @namespace VortexEntity
  */
 
-import Input from './Input';
 import Sprite from './Sprite';
 
  export default class VortexEntity {
@@ -34,7 +34,11 @@ import Sprite from './Sprite';
 
     }
 
- 
+    
+    /**
+     * Main render method, takes a canvas context as argument
+     * @param {*} CTX 
+     */
     render (CTX) {
 
   
@@ -47,6 +51,7 @@ import Sprite from './Sprite';
             
         } else {
 
+            //todo
             CTX.fillStyle = this.color;
             CTX.fillRect(this.x, this.y, this.width, this.height);
 
@@ -57,7 +62,9 @@ import Sprite from './Sprite';
 
 
 
-    
+    /**
+     * Main update method
+     */
     update () {
         
 
@@ -71,7 +78,6 @@ import Sprite from './Sprite';
 
         }
 
-        console.log(this.vy);
 
     }
 

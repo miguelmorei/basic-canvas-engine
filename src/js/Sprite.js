@@ -1,6 +1,7 @@
 
 /**
  * Sprite
+ * @namespace Sprite
  */
 
 
@@ -15,6 +16,10 @@ export default class Sprite {
     }
 
 
+    /**
+     * Create an image element
+     * @param {string} src 
+     */
     createImage(src) {
 
         let image = new Image();
@@ -25,6 +30,11 @@ export default class Sprite {
         
     }
 
+    /**
+     * Render sprite on provided canvas and loop through frames
+     * @param {*} CTX 
+     * @param {*} obj 
+     */
     render(CTX, obj) {
         
         this.tick +=1;

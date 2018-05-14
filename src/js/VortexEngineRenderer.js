@@ -2,6 +2,7 @@
 
 /**
  * Vortex Engine Renderer
+ * @namespace VortexEngineRenderer
  */
 import Canvas from './Canvas';
 import VortexEntity from './VortexEntity';
@@ -28,6 +29,10 @@ import VortexEntity from './VortexEntity';
     }
 
 
+    /**
+     * Attach entity to be rendered
+     * @param {VortexEntity} entity 
+     */
     bindEntity(entity) {
 
         if(entity instanceof VortexEntity) {
@@ -37,6 +42,9 @@ import VortexEntity from './VortexEntity';
     }
 
 
+    /**
+     * Main render method
+     */
     render () {
 
         this.NOW = Date.now();

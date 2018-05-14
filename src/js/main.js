@@ -5,7 +5,6 @@
  */
 import VortexEngine from './VortexEngine';
 import VortexEntity from './VortexEntity';
-import Input from './Input';
 import Sprite from './Sprite';
 
 
@@ -34,7 +33,7 @@ const myObject = new VortexEntity({
     color : 'black',
     sprite : walkLeft,
     solid : true,
-    weight : 1
+    weight : 0
 });
 
 console.log(myObject);
@@ -43,6 +42,7 @@ console.log(myObject);
 
 myObject.step = function(){
     this.vx = 0;
+    this.vy = 0;
     this.sprite = idle;
     if(myGame.input.d) {
         this.vx = 5;
@@ -54,10 +54,13 @@ myObject.step = function(){
         this.sprite = walkLeft;
     }
     
-    if(myGame.input.e) {
-        this.sprite = attackSprite;
+    if(myGame.input.w) {
+        this.vy = -5;
     }
 
+    if(myGame.input.s) {
+        this.vy = 5;
+    }
 
 }
 
@@ -92,6 +95,6 @@ let ground = new VortexEntity({
     weight : 0
 })
 myGame.addEntity(ground);
-//myGame.addEntity(wall);
-//myGame.addEntity(wall2);
+myGame.addEntity(wall);
+myGame.addEntity(wall2);
 myGame.addEntity(myObject);
