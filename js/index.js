@@ -266,8 +266,15 @@ var _Sprite = __webpack_require__(1);
 
 var _Sprite2 = _interopRequireDefault(_Sprite);
 
+var _Time = __webpack_require__(8);
+
+var _Time2 = _interopRequireDefault(_Time);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+/**
+ * Create a game
+ */
 var myGame = new _VortexEngine2.default({
     name: 'My test game',
     render: {
@@ -276,12 +283,19 @@ var myGame = new _VortexEngine2.default({
     }
 });
 
-/**
- * Create a game
- */
-
-
 myGame.start();
+
+var myGameClock = new _Time2.default();
+
+console.log(myGameClock.getCurrentTime());
+
+var clockDOM = document.querySelectorAll('.clock')[0],
+    startClockDOM = document.querySelectorAll('.start-clock')[0],
+    stopClockDOM = document.querySelectorAll('.stop-clock')[0],
+    forwardClockDOM = document.querySelectorAll('.forward-clock')[0];
+
+var currentTime = myGameClock.getCurrentTime();
+clockDOM.innerHTML = currentTime.hour + 'h : ' + currentTime.minute + 'm  | Day ' + currentTime.day + ' , Month ' + currentTime.month + ', Year ' + currentTime.year;
 
 var walkRight = new _Sprite2.default('/img/walk-right.png', 3, 6);
 var walkLeft = new _Sprite2.default('/img/walk-left.png', 3, 6);
@@ -732,6 +746,95 @@ var VortexPhysics = function () {
 }();
 
 exports.default = VortexPhysics;
+
+/***/ }),
+/* 8 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var Hours = 24;
+var Minutes = 60;
+var Days = 30;
+var DayLength = 30; //in seconds
+var Months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+var Year = [0, 0];
+
+var Time = function () {
+    function Time(options) {
+        _classCallCheck(this, Time);
+
+        options = options || {};
+
+        this.maxDayCount = options.maxDayCount || Days;
+        this.realTimeDayLength = options.realTimeDayLength || DayLength;
+        this.months = options.months || Months;
+        this.minMaxYear = options.minMaxYear || Year;
+        this.maxHours = options.maxHourCount || Hours;
+        this.maxMinutes = options.maxMinuteCount || Minutes;
+
+        this.setCurrentTime([1, 1, 1, this.months[0], 1]);
+
+        if (options.currentTime) {
+
+            this.setCurrentTime(options.currentTime);
+        }
+    }
+
+    _createClass(Time, [{
+        key: 'setCurrentTime',
+        value: function setCurrentTime(currentTime) {
+
+            this.currentHour = currentTime[0] || this.currentHour;
+            this.currentMinute = currentTime[1] || this.currentMinute;
+            this.currentDay = currentTime[2] || this.currentDay;
+            this.currentMonth = currentTime[3] || this.currentMonth;
+            this.currentYear = currentTime[4] || this.currentYear;
+
+            return this.getCurrentTime();
+        }
+    }, {
+        key: 'getCurrentTime',
+        value: function getCurrentTime() {
+
+            return {
+                hour: this.currentHour,
+                minute: this.currentMinute,
+                day: this.currentDay,
+                month: this.currentMonth,
+                year: this.currentYear
+            };
+        }
+    }, {
+        key: 'startClock',
+        value: function startClock() {
+            var _this = this;
+
+            this.clock = window.setTimeout(function () {
+                _this.updateClock();
+            }, this.realTimeDayLength);
+        }
+    }, {
+        key: 'pauseClock',
+        value: function pauseClock() {}
+    }, {
+        key: 'clock',
+        value: function clock() {}
+    }]);
+
+    return Time;
+}();
+
+exports.default = Time;
 
 /***/ })
 /******/ ]);

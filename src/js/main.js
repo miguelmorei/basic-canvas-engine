@@ -7,6 +7,7 @@ import VortexEngine from './VortexEngine';
 import VortexEntity from './VortexEntity';
 import Sprite from './Sprite';
 
+import Time from './Time';
 
 const myGame = new VortexEngine({
     name : 'My test game', 
@@ -19,6 +20,17 @@ const myGame = new VortexEngine({
 myGame.start();
 
 
+const myGameClock = new Time();
+
+console.log(myGameClock.getCurrentTime());
+
+const clockDOM = document.querySelectorAll('.clock')[0],
+      startClockDOM = document.querySelectorAll('.start-clock')[0],
+      stopClockDOM = document.querySelectorAll('.stop-clock')[0],
+      forwardClockDOM = document.querySelectorAll('.forward-clock')[0];
+
+let currentTime = myGameClock.getCurrentTime();
+clockDOM.innerHTML = `${currentTime.hour}h : ${currentTime.minute}m  | Day ${currentTime.day} , Month ${currentTime.month}, Year ${currentTime.year}`;
 
 
 let walkRight = new Sprite('/img/walk-right.png', 3, 6);
