@@ -314,6 +314,21 @@ var myObject = new _VortexEntity2.default({
 
 console.log(myObject);
 
+var seconds = 0,
+    realTime = document.querySelectorAll('.real-time')[0];
+var timeout = function timeout() {
+
+    setTimeout(function () {
+
+        seconds += 1;
+        realTime.textContent = seconds;
+
+        timeout();
+    }, 1000);
+};
+
+timeout();
+
 myObject.step = function () {
     this.vx = 0;
     this.vy = 0;
@@ -764,9 +779,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 var Hours = 24;
 var Minutes = 60;
-var Days = 30;
+var Days = 10;
 var DayLength = 30; //in seconds
-var Months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+var Months = ['January', 'February'];
 var Year = [0, 0];
 
 var Time = function () {
@@ -782,15 +797,23 @@ var Time = function () {
         this.maxHours = options.maxHourCount || Hours;
         this.maxMinutes = options.maxMinuteCount || Minutes;
 
-        this.setCurrentTime([1, 1, 1, this.months[0], 1]);
-
-        if (options.currentTime) {
-
-            this.setCurrentTime(options.currentTime);
-        }
+        this.init(options);
     }
 
     _createClass(Time, [{
+        key: 'init',
+        value: function init(options) {
+
+            this.setCurrentTime([1, 1, 1, this.months[0], 1]);
+
+            if (options.currentTime) {
+
+                this.setCurrentTime(options.currentTime);
+            }
+
+            this.startClock();
+        }
+    }, {
         key: 'setCurrentTime',
         value: function setCurrentTime(currentTime) {
 
@@ -821,7 +844,55 @@ var Time = function () {
 
             this.clock = window.setTimeout(function () {
                 _this.updateClock();
-            }, this.realTimeDayLength);
+            }, 1000);
+        }
+    }, {
+        key: 'updateClock',
+        value: function updateClock() {
+            var _this2 = this;
+
+            if (this.currentMinute + 1 < this.maxMinutes) {
+
+                this.currentMinute += 1;
+            } else {
+
+                this.currentMinute = 0;
+
+                if (this.currentHour + 1 < this.maxHours) {
+
+                    this.currentHour += 1;
+                } else {
+
+                    this.currentHour = 0;
+
+                    if (this.currentDay + 1 < this.maxDayCount) {
+
+                        this.currentDay += 1;
+                    } else {
+
+                        this.currentDay = 0;
+
+                        if (this.months.indexOf(this.currentMonth) + 1 < this.months.length) {
+
+                            this.currentMonth = this.months[this.months.indexOf(this.currentMonth) + 1];
+                        } else {
+
+                            this.currentMonth = this.months[0];
+
+                            if (this.minMaxYear[1] == 0 || this.currentYear + 1 < this.minMaxYear[1]) {
+
+                                this.currentYear += 1;
+                            }
+                        }
+                    }
+                }
+            }
+
+            this.clock = window.setTimeout(function () {
+                _this2.updateClock();
+            }, this.maxHours * this.maxMinutes / 30);
+
+            console.log(this.getCurrentTime());
         }
     }, {
         key: 'pauseClock',

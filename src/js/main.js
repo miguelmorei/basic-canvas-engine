@@ -51,6 +51,22 @@ const myObject = new VortexEntity({
 console.log(myObject);
 
 
+let seconds = 0,
+    realTime = document.querySelectorAll('.real-time')[0];
+const timeout = () => {
+
+    setTimeout(()=>{
+
+        seconds += 1;
+        realTime.textContent = seconds;
+
+        timeout();
+
+    }, 1000);
+}
+
+timeout();
+
 
 myObject.step = function(){
     this.vx = 0;
