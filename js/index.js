@@ -775,12 +775,18 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
+var _Timestamp = __webpack_require__(9);
+
+var _Timestamp2 = _interopRequireDefault(_Timestamp);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var Hours = 24;
-var Minutes = 60;
-var Days = 10;
-var DayLength = 30; //in seconds
+var Hours = 2;
+var Minutes = 4;
+var Days = 2;
+var DayLength = 10; //in seconds
 var Months = ['January', 'February'];
 var Year = [0, 0];
 
@@ -790,12 +796,14 @@ var Time = function () {
 
         options = options || {};
 
-        this.maxDayCount = options.maxDayCount || Days;
+        this.maxDays = options.maxDays || Days;
         this.realTimeDayLength = options.realTimeDayLength || DayLength;
         this.months = options.months || Months;
         this.minMaxYear = options.minMaxYear || Year;
         this.maxHours = options.maxHourCount || Hours;
         this.maxMinutes = options.maxMinuteCount || Minutes;
+        this.subscriptions = [];
+        this.currentTimestamp = {};
 
         this.init(options);
     }
@@ -804,24 +812,25 @@ var Time = function () {
         key: 'init',
         value: function init(options) {
 
-            this.setCurrentTime([1, 1, 1, this.months[0], 1]);
+            this.setCurrentTimestamp(new _Timestamp2.default([1, 1, 1, this.months[0], 1], this));
+
+            console.log(new _Timestamp2.default([1, 1, 1, this.months[0], 1], this));
 
             if (options.currentTime) {
 
-                this.setCurrentTime(options.currentTime);
+                this.setCurrentTimestamp(options.currentTime);
             }
 
             this.startClock();
         }
     }, {
-        key: 'setCurrentTime',
-        value: function setCurrentTime(currentTime) {
+        key: 'subscribe',
+        value: function subscribe() {}
+    }, {
+        key: 'setCurrentTimestamp',
+        value: function setCurrentTimestamp(currentTimestamp) {
 
-            this.currentHour = currentTime[0] || this.currentHour;
-            this.currentMinute = currentTime[1] || this.currentMinute;
-            this.currentDay = currentTime[2] || this.currentDay;
-            this.currentMonth = currentTime[3] || this.currentMonth;
-            this.currentYear = currentTime[4] || this.currentYear;
+            this.currentTimestamp = currentTimestamp;
 
             return this.getCurrentTime();
         }
@@ -829,13 +838,7 @@ var Time = function () {
         key: 'getCurrentTime',
         value: function getCurrentTime() {
 
-            return {
-                hour: this.currentHour,
-                minute: this.currentMinute,
-                day: this.currentDay,
-                month: this.currentMonth,
-                year: this.currentYear
-            };
+            return this.currentTimestamp;
         }
     }, {
         key: 'startClock',
@@ -851,46 +854,11 @@ var Time = function () {
         value: function updateClock() {
             var _this2 = this;
 
-            if (this.currentMinute + 1 < this.maxMinutes) {
-
-                this.currentMinute += 1;
-            } else {
-
-                this.currentMinute = 0;
-
-                if (this.currentHour + 1 < this.maxHours) {
-
-                    this.currentHour += 1;
-                } else {
-
-                    this.currentHour = 0;
-
-                    if (this.currentDay + 1 < this.maxDayCount) {
-
-                        this.currentDay += 1;
-                    } else {
-
-                        this.currentDay = 0;
-
-                        if (this.months.indexOf(this.currentMonth) + 1 < this.months.length) {
-
-                            this.currentMonth = this.months[this.months.indexOf(this.currentMonth) + 1];
-                        } else {
-
-                            this.currentMonth = this.months[0];
-
-                            if (this.minMaxYear[1] == 0 || this.currentYear + 1 < this.minMaxYear[1]) {
-
-                                this.currentYear += 1;
-                            }
-                        }
-                    }
-                }
-            }
+            this.currentTimestamp = this.currentTimestamp.addMinutes(1);
 
             this.clock = window.setTimeout(function () {
                 _this2.updateClock();
-            }, this.maxHours * this.maxMinutes / 30);
+            }, 1000);
 
             console.log(this.getCurrentTime());
         }
@@ -906,6 +874,169 @@ var Time = function () {
 }();
 
 exports.default = Time;
+
+/***/ }),
+/* 9 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var Timestamp = function () {
+    function Timestamp(options, time) {
+        _classCallCheck(this, Timestamp);
+
+        this.minute = options[0] || 0;
+        this.hour = options[1] || 0;
+        this.day = options[2] || 0;
+        this.month = options[3] || time.months[0];
+        this.year = options[4] || 0;
+        this.time = time;
+    }
+
+    _createClass(Timestamp, [{
+        key: "update",
+        value: function update(params) {
+
+            if (params[0] != null) {
+
+                if (this.minute + params[0] > this.time.maxMinutes) {
+
+                    this.minute = 0;
+                } else {
+
+                    this.minute += params[0];
+                }
+            }
+
+            if (params[1] != null) {
+
+                if (this.hour + params[1] > this.time.maxHours) {
+
+                    this.hour = 0;
+                } else {
+
+                    this.hour += params[1];
+                }
+            }
+
+            if (params[2] != null) {
+
+                if (this.day + params[2] > this.time.maxDays) {
+
+                    this.day = 0;
+                } else {
+
+                    this.day += params[2];
+                }
+            }
+
+            if (params[3] != null) {
+
+                if (this.time.months.indexOf(this.month) + params[3] < this.time.months.length) {
+
+                    this.month = this.time.months[this.time.months.indexOf(this.month) + params[3]];
+                } else {
+
+                    this.month = this.time.months[0];
+                }
+            }
+
+            if (params[4] != null) {
+
+                if (this.time.minMaxYear[1] == 0 || this.year + 1 < this.time.minMaxYear[1]) {
+
+                    this.year += 1;
+                }
+            }
+
+            return this;
+        }
+    }, {
+        key: "addMinutes",
+        value: function addMinutes(value) {
+
+            if (this.minute + value > this.time.maxMinutes) {
+
+                this.minute = 0;
+                this.addHours(1);
+            } else {
+
+                this.minute += value;
+            }
+
+            return this;
+        }
+    }, {
+        key: "addHours",
+        value: function addHours(value) {
+
+            if (this.hour + value > this.time.maxHours) {
+
+                this.hour = 0;
+                this.addDays(1);
+            } else {
+
+                this.hour += value;
+            }
+
+            return this;
+        }
+    }, {
+        key: "addDays",
+        value: function addDays(value) {
+
+            if (this.day + value > this.time.maxDays) {
+
+                this.day = 0;
+                this.addMonths(1);
+            } else {
+
+                this.day += value;
+            }
+
+            return this;
+        }
+    }, {
+        key: "addMonths",
+        value: function addMonths(value) {
+
+            if (this.time.months.indexOf(this.month) + value < this.time.months.length) {
+
+                this.month = this.time.months[this.time.months.indexOf(this.month) + value];
+            } else {
+
+                this.month = this.time.months[0];
+                this.addYears(1);
+            }
+
+            return this;
+        }
+    }, {
+        key: "addYears",
+        value: function addYears(value) {
+
+            if (this.time.minMaxYear[1] == 0 || this.year + value < this.time.minMaxYear[1]) {
+
+                this.year += 1;
+            }
+
+            return this;
+        }
+    }]);
+
+    return Timestamp;
+}();
+
+exports.default = Timestamp;
 
 /***/ })
 /******/ ]);
